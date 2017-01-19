@@ -20,7 +20,7 @@ endfunction(UtilCheckTypeSize)
 ##############################################################################
 # Power of two
 # returns result in a VAR whose name is in RESULT_NAME
-function (pow2 e RESULT_NAME)
+function(pow2 e RESULT_NAME)
     set(pow2_result 1)
     while(${e} GREATER 0)
         math(EXPR pow2_result "${pow2_result} + ${pow2_result}")
@@ -32,25 +32,25 @@ endfunction(pow2)
 ##############################################################################
 # Logarithm base 2
 # returns result in a VAR whose name is in RESULT_NAME
-function (lg x RESULT_NAME)
+function(lg x RESULT_NAME)
     set(lg_result 0)
-    while ( ${x} GREATER 1 )
+    while (${x} GREATER 1)
         math(EXPR lg_result "${lg_result} + 1")
         math(EXPR x "${x} / 2")
-    endwhile ( ${x} GREATER 1 )
+    endwhile (${x} GREATER 1)
     set(${RESULT_NAME} ${lg_result} PARENT_SCOPE)
 endfunction(lg)
 
 ##############################################################################
 # Read one file and append it to another
-function (AppendFileContents input output)
+function(AppendFileContents input output)
     file(READ ${input} buffer)
     file(APPEND ${output} "${buffer}")
-endfunction (AppendFileContents)
+endfunction(AppendFileContents)
 
 ##############################################################################
 # Generate public symbols list
-function (GeneratePublicSymbolsList public_sym_list mangling_map symbol_prefix output_file)
+function(GeneratePublicSymbolsList public_sym_list mangling_map symbol_prefix output_file)
     # Note: this doesn't do proper change checking.  If you update
     # 'symbol_prefix' or 'mangling_map' you'll need to manually rebuild.
     # Those are uncommon operations at present.
@@ -91,7 +91,7 @@ endfunction(GeneratePublicSymbolsList)
 # IMHO, the script has a bug that is currently reflected here
 # If the public symbol as alternatively named in a mangling map it is not
 # reflected here. Instead, all symbols are #defined using the passed symbol_prefix
-function (GenerateJemallocMangle public_sym_list symbol_prefix output_file)
+function(GenerateJemallocMangle public_sym_list symbol_prefix output_file)
     # Header
     file(WRITE "${output_file}"
         "/*\n * By default application code must explicitly refer to mangled symbol names,\n"
@@ -132,11 +132,11 @@ function (GenerateJemallocMangle public_sym_list symbol_prefix output_file)
 
     # Footer
     file(APPEND "${output_file}" "#endif\n")
-endfunction (GenerateJemallocMangle)
+endfunction(GenerateJemallocMangle)
 
 ##############################################################################
 # Generate jemalloc_rename.h per jemalloc_rename.sh
-function (GenerateJemallocRename public_sym_list_file file_path)
+function(GenerateJemallocRename public_sym_list_file file_path)
     # Header
     file(WRITE "${file_path}"
         "/*\n * Name mangling for public symbols is controlled by --with-mangling and\n"
@@ -155,13 +155,13 @@ function (GenerateJemallocRename public_sym_list_file file_path)
     file(APPEND "${file_path}"
         "#endif\n"
         )
-endfunction (GenerateJemallocRename)
+endfunction(GenerateJemallocRename)
 
 ##############################################################################
 # Create a jemalloc.h header by concatenating the following headers
 # Mimic processing from jemalloc.sh
 # This is a Windows specific function
-function (CreateJemallocHeader pubsyms header_list output_file)
+function(CreateJemallocHeader pubsyms header_list output_file)
     file(REMOVE ${output_file})
 
     message(STATUS "Generating API header ${output_file}")
@@ -244,11 +244,11 @@ endfunction(PrivateUnnamespace)
 
 
 ##############################################################################
-# A function that configures a file_path and outputs
+# A function(that configures a file_path and outputs
 # end result into output_path
 # ExpandDefine True/False if we want to process the file and expand
 # lines that start with #undef DEFINE into what is defined in CMAKE
-function (ConfigureFile file_path output_path ExpandDefine)
+function(ConfigureFile file_path output_path ExpandDefine)
     # Convert autoconf .in files to .cmake files to generate proper .h files
     file(TO_NATIVE_PATH "${file_path}" ntv_file_path)
 
@@ -279,7 +279,7 @@ endfunction(ConfigureFile)
 
 ##############################################################################
 ## Run Git and parse the output to populate version settings above
-function (GetAndParseVersion)
+function(GetAndParseVersion)
     if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
         execute_process(COMMAND ${GIT_EXECUTABLE}
             describe --long --abbrev=40
@@ -329,10 +329,10 @@ function (GetAndParseVersion)
             message(STATUS "jemalloc_version_gid: ${jemalloc_version_gid}")
         endif()
     endif()
-endfunction (GetAndParseVersion)
+endfunction(GetAndParseVersion)
 
 ##############################################################################
-## This function attemps to compile a one liner
+## This function(attemps to compile a one liner
 # with compiler flags to append. If the compiler flags
 # are supported they are appended to the variable which names
 # is supplied in the APPEND_TO_VAR and the RESULT_VAR is set to
@@ -362,21 +362,19 @@ endfunction(JeCflagsAppend)
 # It sets rvar to yes or now depending on the result
 #
 # TODO: Make sure that it does expose linking problems
-function (JeCompilable label hcode mcode rvar)
-    set(SRC 
-        "${hcode}
+function(JeCompilable label hcode mcode rvar)
+    set(SRC "${hcode}
+int main() {
+    ${mcode}
+    return 0;
+}")
 
-        int main(int argc, char* argv[]) {
-        ${mcode}
-        return 0;
-        }")
+    # We may want a stronger check here
+    CHECK_C_SOURCE_COMPILES("${SRC}" status)
 
-        # We may want a stronger check here
-        CHECK_C_SOURCE_COMPILES("${SRC}" status)
-
-        if(status)
-            set(${rvar} True PARENT_SCOPE)
-        else()
-            set(${rvar} False PARENT_SCOPE)
-        endif()
-    endfunction(JeCompilable)
+    if(status)
+        set(${rvar} True PARENT_SCOPE)
+    else()
+        set(${rvar} False PARENT_SCOPE)
+    endif()
+endfunction(JeCompilable)
