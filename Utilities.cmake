@@ -6,16 +6,30 @@ include(CheckCCompilerFlag)
 include(CheckCSourceCompiles)
 
 ##############################################################################
-# CheckTypeSize
-function(UtilCheckTypeSize type OUTPUT_VAR_NAME)
-    CHECK_TYPE_SIZE(${type} ${OUTPUT_VAR_NAME} LANGUAGE C)
+# CheckTypeSizeValid
+# Given C type 'type', populate lg(sizeof(type)) in '_RESULT_LG' after validing
+# at least one numeric argument given after '_RESULT_LG' equals sizeof(type).
+function(UtilCheckTypeSizeValid type _RESULT_LG)
+    # The variable for 'check_type_size' must be unique because it's
+    # globally cached across all invocations.
+    check_type_size(${type} ${_RESULT_LG}foundSize)
 
-    if(${${OUTPUT_VAR_NAME}})
-        set(${OUTPUT_VAR_NAME} ${${OUTPUT_VAR_NAME}} PARENT_SCOPE)
-    else()
-        message(FATAL_ERROR "Can not determine ${type} size")
+    set(sizeOk False)
+
+    # Iterate over vararg parameters after _RESULT_LG (the size checks)
+    foreach(sizeCompare ${ARGN})
+        if(${_RESULT_LG}foundSize EQUAL sizeCompare)
+            set(sizeOk True)
+            lg(${${_RESULT_LG}foundSize} LG_OF_FOUND_SIZE)
+            set(${_RESULT_LG} ${LG_OF_FOUND_SIZE} PARENT_SCOPE)
+            break()
+        endif()
+    endforeach()
+
+    if (NOT sizeOk)
+        message(FATAL_ERROR "Unsupported ${type} size: ${${_RESULT_LG}foundSize}")
     endif()
-endfunction(UtilCheckTypeSize)
+endfunction(UtilCheckTypeSizeValid)
 
 ##############################################################################
 # Power of two
