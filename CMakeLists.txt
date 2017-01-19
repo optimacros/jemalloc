@@ -122,52 +122,40 @@ CHECK_INCLUDE_FILES(sys/time.h HAVE_SYSTIME_H)
 
 TEST_BIG_ENDIAN(JEMALLOC_BIG_ENDIAN)
 
+# These size checks could be broken down to macro or function for repeated use
 UtilCheckTypeSize(void* SIZEOF_VOID_P)
-if(SIZEOF_VOID_P)
-    lg(${SIZEOF_VOID_P} "LG_SIZEOF_PTR")
-    # The latest code hardcodes this on Windows
-    # set(LG_SIZEOF_PTR_WIN ${LG_SIZEOF_PTR})
-    if((NOT ${LG_SIZEOF_PTR} EQUAL 3) AND
-        (NOT ${LG_SIZEOF_PTR} EQUAL 2))
-        message(FATAL_ERROR "Unsupported pointer size :${LG_SIZEOF_PTR}")
-    endif()
+if((${SIZEOF_VOID_P} EQUAL 8) OR (${SIZEOF_VOID_P} EQUAL 4))
+    lg(${SIZEOF_VOID_P} LG_SIZEOF_PTR)
+else()
+    message(FATAL_ERROR "Unsupported pointer size: ${SIZEOF_VOID_P}")
 endif()
 
 UtilCheckTypeSize(int SIZEOF_INT)
-if(SIZEOF_INT)
-    lg(${SIZEOF_INT} "LG_SIZEOF_INT")
-    if((NOT ${LG_SIZEOF_INT} EQUAL 3) AND
-        (NOT ${LG_SIZEOF_INT} EQUAL 2))
-        message(FATAL_ERROR "Unsupported int size :${LG_SIZEOF_INT}")
-    endif()
+if((${SIZEOF_INT} EQUAL 8) OR (${SIZEOF_INT} EQUAL 4))
+    lg(${SIZEOF_INT} LG_SIZEOF_INT)
+else()
+    message(FATAL_ERROR "Unsupported int size: ${SIZEOF_INT}")
 endif()
 
 UtilCheckTypeSize(long SIZEOF_LONG)
-if(SIZEOF_LONG)
-    lg(${SIZEOF_LONG} "LG_SIZEOF_LONG")
-    if((NOT ${LG_SIZEOF_LONG} EQUAL 3) AND
-        (NOT ${LG_SIZEOF_LONG} EQUAL 2))
-        message(FATAL_ERROR "Unsupported long size :${LG_SIZEOF_LONG}")
-    endif()
+if((${SIZEOF_LONG} EQUAL 8) OR (${SIZEOF_LONG} EQUAL 4))
+    lg(${SIZEOF_LONG} LG_SIZEOF_LONG)
+else()
+    message(FATAL_ERROR "Unsupported long size: ${SIZEOF_LONG}")
 endif()
 
 UtilCheckTypeSize("long long" SIZEOF_LONG_LONG)
-if(SIZEOF_LONG_LONG)
-    lg(${SIZEOF_LONG_LONG} "LG_SIZEOF_LONG_LONG")
-    if((NOT ${LG_SIZEOF_LONG_LONG} EQUAL 3) AND
-        (NOT ${LG_SIZEOF_LONG_LONG} EQUAL 2))
-        message(FATAL_ERROR "Unsupported long size :${LG_SIZEOF_LONG_LONG}")
-    endif()
+if((${SIZEOF_LONG_LONG} EQUAL 8) OR (${SIZEOF_LONG_LONG} EQUAL 4))
+    lg(${SIZEOF_LONG_LONG} LG_SIZEOF_LONG_LONG)
+else()
+    message(FATAL_ERROR "Unsupported long long size: ${SIZEOF_LONG_LONG}")
 endif()
 
 UtilCheckTypeSize(intmax_t SIZEOF_INTMAX_T)
-if(SIZEOF_INTMAX_T)
-    lg(${SIZEOF_INTMAX_T} "LG_SIZEOF_INTMAX_T")
-    if((NOT ${LG_SIZEOF_INTMAX_T} EQUAL 4) AND
-        (NOT ${LG_SIZEOF_INTMAX_T} EQUAL 3) AND
-        (NOT ${LG_SIZEOF_INTMAX_T} EQUAL 2))
-        message(FATAL_ERROR "Unsupported long size :${LG_SIZEOF_INTMAX_T}")
-    endif()
+if((${SIZEOF_INTMAX_T} EQUAL 16) OR (${SIZEOF_INTMAX_T} EQUAL 8) OR (${SIZEOF_INTMAX_T} EQUAL 4))
+    lg(${SIZEOF_INTMAX_T} LG_SIZEOF_INTMAX_T)
+else()
+    message(FATAL_ERROR "Unsupported intmax_t size: ${SIZEOF_INTMAX_T}")
 endif()
 
 if(MSVC)
