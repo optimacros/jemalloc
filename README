@@ -1,14 +1,24 @@
 <NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE>
 
-This branch *only* introduces the CMake build system.
+These branches introduce the CMake build system to jemalloc.
 
-There's another branch introducing code changes in addition to this build system.
+One branch has *only* CMake changes and another branch adds code changes on top as well (optional, but recommended).
 
-Overall, the flow goes:
+Overall, the development/rebase flow goes:
 
 jemalloc/jemalloc branch dev -> mattsta/jemalloc branch add/cmake -> mattsta/jemalloc branch add/cmake-with-code-changes
 
-This branch is a *rebase* branch. Future updates to this branch will be hard rebased on top of jemalloc changes.  We aren't cross contaminating the development history here with actual jemalloc development.
+There's another flat branch with all changes squashed (and these README additions removed) at mattsta/jemalloc branch add/cmake-flat for easier merging without full edit history.
+
+This branch is a *rebase* branch. Future updates to this branch will be hard rebased on top of jemalloc changes and/or other cmake integration changes.  We aren't cross contaminating the development history here with upstream jemalloc development.
+
+REMAINING DECISIONS TO MAKE:
+
+- Keep CMake extra cruft at the top level or put in a {priv, extras, cmake-extras, etc} directory?
+- break out non-common settings into to per-platform detection helpers (BuildWin32.cmake, BuildUnix.cmake, etc) so there's less If(WIN32)else() throughout?
+- Just use one top-level CMakeLists.txt or break it out into per-directory build files ({src, test/src, test/unit, test/stress, test/integration})?
+- Better integrate with CTest? (currently provides 'make test' and 'make check' in Debug builds)
+- Better package with CPack? (no integration currently, it can build OS packages and tarballs automatically)
 
 </NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE>
 
