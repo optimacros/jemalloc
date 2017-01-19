@@ -1,3 +1,17 @@
+<NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE>
+
+This branch *only* introduces the CMake build system.
+
+There's another branch introducing code changes in addition to this build system.
+
+Overall, the flow goes:
+
+jemalloc/jemalloc branch dev -> mattsta/jemalloc branch add/cmake -> mattsta/jemalloc branch add/cmake-with-code-changes
+
+This branch is a *rebase* branch. Future updates to this branch will be hard rebased on top of jemalloc changes.  We aren't cross contaminating the development history here with actual jemalloc development.
+
+</NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE NOTE>
+
 jemalloc is a general purpose malloc(3) implementation that emphasizes
 fragmentation avoidance and scalable concurrency support.  jemalloc first came
 into use as the FreeBSD libc allocator in 2005, and since then it has found its
