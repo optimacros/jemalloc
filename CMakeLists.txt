@@ -101,7 +101,7 @@ GetAndParseVersion()
 
 # We do not support exec_prefix until we find it is necessary
 
-CHECK_INCLUDE_FILES (alloca.h JEMALLOC_HAS_ALLOCA_H)
+check_include_files(alloca.h JEMALLOC_HAS_ALLOCA_H)
 
 if(APPLE)
     set(abi "macho")
@@ -110,17 +110,17 @@ else()
 endif()
 
 # Whether malloc_usable_size definition can use const argument
-CHECK_INCLUDE_FILES (malloc.h HAVE_MALLOC_H)
+check_include_files(malloc.h HAVE_MALLOC_H)
 if(HAVE_MALLOC_H)
     set(JEMALLOC_USABLE_SIZE_CONST const)
 else()
     set(JEMALLOC_USABLE_SIZE_CONST const)
 endif()    
 
-CHECK_INCLUDE_FILES(inttypes.h HAVE_INTTYPES_H)
-CHECK_INCLUDE_FILES(sys/time.h HAVE_SYSTIME_H)
+check_include_files(inttypes.h HAVE_INTTYPES_H)
+check_include_files(sys/time.h HAVE_SYSTIME_H)
 
-TEST_BIG_ENDIAN(JEMALLOC_BIG_ENDIAN)
+test_big_endian(JEMALLOC_BIG_ENDIAN)
 
 UtilCheckTypeSizeValid("void *" LG_SIZEOF_PTR 8 4)
 UtilCheckTypeSizeValid("int" LG_SIZEOF_INT 8 4)
@@ -438,7 +438,7 @@ if(enable-lazy-lock)
 endif()
 
 if(enable-lazy-lock)
-    CHECK_INCLUDE_FILES (dlfcn.h HAVE_DLFCN_H)
+    check_include_files(dlfcn.h HAVE_DLFCN_H)
     if(NOT HAVE_DLFCN_H)
         message(FATAL_ERROR "dlfcn.h is missing")
     endif()
