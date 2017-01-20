@@ -2,7 +2,7 @@
 # but it's more useful to remove most of the Windows-isms and just make it a
 # clean CMake infrastructure for Unix platforms.
 
-cmake_minimum_required (VERSION 3.4 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(jemalloc C)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -19,9 +19,6 @@ include(CTest)
 include(${PROJECT_SOURCE_DIR}/Utilities.cmake)
 include(${PROJECT_SOURCE_DIR}/GetSystemSizes.cmake)
 include_directories(${PROJECT_SOURCE_DIR}/include)
-
-# Set policy based on the CMake version
-cmake_policy(VERSION 3.4.3)
 
 if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
