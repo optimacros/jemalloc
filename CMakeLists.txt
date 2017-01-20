@@ -70,7 +70,7 @@ endif()
 set(PREFIX $install_prefix)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror=declaration-after-statement")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wsign-compare")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pipe -g3")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE")
