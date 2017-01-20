@@ -781,9 +781,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 
     set(C_UTIL_INTEGRATION jemalloc_util_int_test${install_suffix})
     add_library(${C_UTIL_INTEGRATION} OBJECT ${C_UTIL_INTEGRATION_SRCS})
-    if(C_UTIL_INTEGRATION_DEFS)
-        target_compile_definitions(${C_UTIL_INTEGRATION} PRIVATE "${C_UTIL_INTEGRATION_DEFS}")
-    endif()
+    target_compile_definitions(${C_UTIL_INTEGRATION} PRIVATE "${C_UTIL_INTEGRATION_DEFS}")
 
     ############################################################################
     # Common source for Unit, Integration and stress test libraries
@@ -807,9 +805,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_library(${PROJECT_NAME}UnitTest STATIC ${UnitTestCommon})
     target_include_directories(${PROJECT_NAME}UnitTest PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
 
-    if(COMMON_TESTLIB_CC_FLAGS)
-        target_compile_options(${PROJECT_NAME}UnitTest PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
-    endif()
+    target_compile_options(${PROJECT_NAME}UnitTest PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
 
     target_compile_definitions(${PROJECT_NAME}UnitTest PRIVATE "${C_TESTLIB_UNIT_DEFS}")
 
@@ -819,9 +815,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_library(${C_TESTLIB_INTEGRATION} STATIC ${UnitTestCommon})
     target_include_directories(${C_TESTLIB_INTEGRATION} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
 
-    if(COMMON_TESTLIB_CC_FLAGS)
-        target_compile_options(${C_TESTLIB_INTEGRATION} PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
-    endif()
+    target_compile_options(${C_TESTLIB_INTEGRATION} PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
 
     target_compile_definitions(${C_TESTLIB_INTEGRATION} PRIVATE "${C_TESTLIB_INTEGRATION_DEFS}")
 
@@ -832,9 +826,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     add_library(${C_TESTLIB_STRESS} STATIC ${UnitTestCommon})
     target_include_directories(${C_TESTLIB_STRESS} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
 
-    if(COMMON_TESTLIB_CC_FLAGS)
-        target_compile_options(${C_TESTLIB_STRESS} PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
-    endif()
+    target_compile_options(${C_TESTLIB_STRESS} PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
 
     target_compile_definitions(${C_TESTLIB_STRESS} PRIVATE "${C_TESTLIB_STRESS_DEF}")
 
@@ -926,9 +918,7 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
         add_executable(${exename} ${sourcefile}) 
         target_include_directories(${exename} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
 
-        if(C_UNIT_TEST_C_FLAGS)
-            target_compile_options(${exename} PRIVATE "${C_UNIT_TEST_C_FLAGS}")
-        endif()
+        target_compile_options(${exename} PRIVATE "${C_UNIT_TEST_C_FLAGS}")
 
         set_target_properties(${exename} PROPERTIES COMPILE_DEFINITIONS "${C_UNITETEST_DEFS}")
         target_link_libraries(${exename} ${PROJECT_NAME}UnitTest) # must come before -jet-static
