@@ -27,6 +27,7 @@ if(POLICY CMP0042)
     cmake_policy(SET CMP0042 NEW)
 endif()
 
+option(enable-prefixed-jemalloc-library "Build prefixed namespace library" OFF)
 # The following config switches that mimic the original autoconf behavior are supported
 # use -D to define cmd arguments, options may have values of ON/OFF
 option(disable-munmap "Disables unmapping for later reuse (default - enabled)" OFF )
@@ -77,7 +78,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden -O3 -funroll-loops")
 
 if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-tautological-pointer-compare")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-tautological-pointer-compare")
 endif()
 
 check_c_compiler_flag("-Wshorten-64-to-32" FLAG_SHORTEN)
@@ -663,304 +664,48 @@ ConfigureFile("${PROJECT_SOURCE_DIR}/include/jemalloc/jemalloc_protos.h.in"
 # revert
 set(je_ je_)
 
-# We need this as a SOURCES array and not _just_ an OBJECT library because
-# these sources will be compiled multiple times (with name-prefix jet-* and
-# without (regular distribution)).  The regular distribution does use OBJECT
-# library so we don't build the same sources twice for shared and static.
-set(JEMALLOC_CMAKE_SOURCES
-    src/arena.c
-    src/base.c
-    src/bitmap.c
-    src/ckh.c
-    src/ctl.c
-    src/extent.c
-    src/extent_dss.c
-    src/extent_mmap.c
-    src/jemalloc.c
-    src/large.c
-    src/mutex.c
-    src/nstime.c
-    src/pages.c
-    src/prof.c
-    src/rtree.c
-    src/stats.c
-    src/tcache.c
-    src/tsd.c
-    src/util.c
-    src/witness.c
-    )
-
-if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    list(APPEND JEMALLOC_CMAKE_SOURCES src/zone.c)
-endif()
-
-# These objects only have code in debug builds (due to macros)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-    list(APPEND JEMALLOC_CMAKE_SOURCES
-        src/atomic.c
-        src/hash.c
-        src/prng.c
-        src/spin.c
-        src/ticker.c)
-    # No symbols even in debug mode
-    # src/mb.c
+    set(enable-prefixed-jemalloc-library ON)
 endif()
 
-if(enable_valgrind)
-    list(APPEND C_SRCS src/valgrind.c)
-endif()
+if(enable-prefixed-jemalloc-library)
+    set(C_JETLIB_DEFS "JEMALLOC_JET")
 
-# Bring sources into an object library so we can include elsewhere
-# and also so we don't end up compiling the same code twice for no reason.
-add_library(${PROJECT_NAME} OBJECT ${JEMALLOC_CMAKE_SOURCES})
+    set(C_UTIL_INTEGRATION_DEFS "")
+    set(C_TESTLIB_INTEGRATION_DEFS "JEMALLOC_INTEGRATION_TEST")
+    set(C_TESTLIB_INTEGRATION ${PROJECT_NAME}IntegrationTest${install_suffix})
 
-# The original library, delivery product
-add_library(${PROJECT_NAME}-static STATIC $<TARGET_OBJECTS:${PROJECT_NAME}>)
+    set(C_TESTLIB_UNIT_DEFS "JEMALLOC_UNIT_TEST")
+    set(C_TESTLIB_STRESS_DEF "JEMALLOC_STRESS_TEST;JEMALLOC_STRESS_TESTLIB")
+    set(C_TESTLIB_STRESS ${PROJECT_NAME}TestStress${install_suffix})
 
-# Now add shared library. Needed for integration tests
-# and a benchmark
-add_library(${PROJECT_NAME}-shared SHARED $<TARGET_OBJECTS:${PROJECT_NAME}>)
+    set(C_UNITETEST_DEFS "JEMALLOC_UNIT_TEST")
 
-# Need to export from DLL
-target_compile_definitions(${PROJECT_NAME}-shared PRIVATE DLLEXPORT)
+    if(with-jemalloc-prefix)
+        set(C_JETLIB_DEFS  "${C_JETLIB_DEFS};JEMALLOC_MANGLE")
+        set(C_UTIL_INTEGRATION_DEFS "${C_UTIL_INTEGRATION_DEFS};JEMALLOC_MANGLE")
+    endif()
 
-if(with-jemalloc-prefix)
-    target_compile_definitions(${LIBJEMALLOCLIB} PRIVATE JEMALLOC_MANGLE)
-    target_compile_definitions(${PROJECT_NAME}-shared PRIVATE JEMALLOC_MANGLE)
-endif()
+    # Add empty definition of JEMALLOC_EXPORT as we use them in
+    # static form on other platforms it is empty defined by default but
+    # not on windows
+    if(MSVC)
+        set(C_JETLIB_DEFS  "${C_JETLIB_DEFS};JEMALLOC_EXPORT=")
+        set(C_TESTLIB_INTEGRATION_DEFS "${C_TESTLIB_INTEGRATION_DEFS};JEMALLOC_EXPORT=")
+        set(C_TESTLIB_UNIT_DEFS "${C_TESTLIB_UNIT_DEFS};JEMALLOC_EXPORT=")
+        set(C_TESTLIB_STRESS_DEF "${C_TESTLIB_STRESS_DEF};JEMALLOC_EXPORT=")
+        set(C_UNITETEST_DEFS "${C_UNITETEST_DEFS};JEMALLOC_EXPORT=")
 
-##############################################################################
-## Building tests
-
-# Compose compiler defs and options for the tests
-
-set(C_JETLIB_DEFS "JEMALLOC_JET")
-set(C_UTIL_INTEGRATION_DEFS "")
-set(C_TESTLIB_INTEGRATION_DEFS "JEMALLOC_INTEGRATION_TEST")
-set(C_TESTLIB_UNIT_DEFS "JEMALLOC_UNIT_TEST")
-set(C_TESTLIB_STRESS_DEF "JEMALLOC_STRESS_TEST;JEMALLOC_STRESS_TESTLIB")
-set(C_UNITETEST_DEFS "JEMALLOC_UNIT_TEST")
-
-if(with-jemalloc-prefix)
-    set(C_JETLIB_DEFS  "${C_JETLIB_DEFS};JEMALLOC_MANGLE")
-    set(C_UTIL_INTEGRATION_DEFS "${C_UTIL_INTEGRATION_DEFS};JEMALLOC_MANGLE")
-endif()
-
-# Add empty definition of JEMALLOC_EXPORT as we use them in
-# static form on other platforms it is empty defined by default but
-# not on windows
-if(MSVC)
-    set(C_JETLIB_DEFS  "${C_JETLIB_DEFS};JEMALLOC_EXPORT=")
-    set(C_TESTLIB_INTEGRATION_DEFS "${C_TESTLIB_INTEGRATION_DEFS};JEMALLOC_EXPORT=")
-    set(C_TESTLIB_UNIT_DEFS "${C_TESTLIB_UNIT_DEFS};JEMALLOC_EXPORT=")
-    set(C_TESTLIB_STRESS_DEF "${C_TESTLIB_STRESS_DEF};JEMALLOC_EXPORT=")
-    set(C_UNITETEST_DEFS "${C_UNITETEST_DEFS};JEMALLOC_EXPORT=")
-
-    # C4018 signed/unsigned mismatch in timer.c
-    set(COMMON_TESTLIB_CC_FLAGS /wd4018)
-endif()
-
-option(enable-prefixed-jemalloc-library "Build prefixed namespace library" OFF)
-if(enable-prefixed-jemalloc-library OR (CMAKE_BUILD_TYPE MATCHES Debug))
-    ############################################################################
-    # JET prefixed version of jemalloc library
-    # necessary to compliment non-exported symbols
-    # Note: we must references the SOURCES here and not the OBJECT library
-    #       because we must re-build with different namespace options.
-    add_library(${PROJECT_NAME}-jet-static STATIC ${JEMALLOC_CMAKE_SOURCES})
-    target_compile_definitions(${PROJECT_NAME}-jet-static PRIVATE "${C_JETLIB_DEFS}")
+        # C4018 signed/unsigned mismatch in timer.c
+        set(COMMON_TESTLIB_CC_FLAGS /wd4018)
+    endif()
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-    ############################################################################
-    # Util integration two object files helper
-    set(C_UTIL_INTEGRATION_SRCS
-        src/nstime.c
-        src/util.c
-        )
-
-    set(C_UTIL_INTEGRATION jemalloc_util_int_test${install_suffix})
-    add_library(${C_UTIL_INTEGRATION} OBJECT ${C_UTIL_INTEGRATION_SRCS})
-    target_compile_definitions(${C_UTIL_INTEGRATION} PRIVATE "${C_UTIL_INTEGRATION_DEFS}")
-
-    ############################################################################
-    # Common source for Unit, Integration and stress test libraries
-    set(UnitTestCommon
-        test/src/SFMT.c
-        test/src/btalloc.c
-        test/src/btalloc_0.c
-        test/src/btalloc_1.c
-        test/src/math.c
-        test/src/mq.c
-        test/src/mtx.c
-        test/src/test.c
-        test/src/thd.c
-        test/src/timer.c
-        )
-
-    ############################################################################
-    # Unit tests test library
-    # Unit test have access to all of the interfaces
-    # and we link to a JET library thus JEMALLOC_JET is automatically defined
-    add_library(${PROJECT_NAME}UnitTest STATIC ${UnitTestCommon})
-    target_include_directories(${PROJECT_NAME}UnitTest PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
-
-    target_compile_options(${PROJECT_NAME}UnitTest PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
-
-    target_compile_definitions(${PROJECT_NAME}UnitTest PRIVATE "${C_TESTLIB_UNIT_DEFS}")
-
-    ############################################################################
-    # Integration test library
-    set(C_TESTLIB_INTEGRATION jemalloc_int_test${install_suffix})
-    add_library(${C_TESTLIB_INTEGRATION} STATIC ${UnitTestCommon})
-    target_include_directories(${C_TESTLIB_INTEGRATION} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
-
-    target_compile_options(${C_TESTLIB_INTEGRATION} PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
-
-    target_compile_definitions(${C_TESTLIB_INTEGRATION} PRIVATE "${C_TESTLIB_INTEGRATION_DEFS}")
-
-    ###########################################################################
-    # Benchmark
-    # Stress test library to link with microbench
-    set(C_TESTLIB_STRESS jemalloc_test_stress${install_suffix})
-    add_library(${C_TESTLIB_STRESS} STATIC ${UnitTestCommon})
-    target_include_directories(${C_TESTLIB_STRESS} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
-
-    target_compile_options(${C_TESTLIB_STRESS} PRIVATE "${COMMON_TESTLIB_CC_FLAGS}")
-
-    target_compile_definitions(${C_TESTLIB_STRESS} PRIVATE "${C_TESTLIB_STRESS_DEF}")
-
-    ############################################################################
-    # Microbench
-    set(TESTS_STRESS
-        test/stress/microbench.c
-        )
-
-    # Build benchmark
-    # This consumes C_JETLIB, Link to SO
-    foreach(sourcefile ${TESTS_STRESS})
-        get_filename_component(exename ${sourcefile} NAME_WE)
-        set(exename "${exename}${install_suffix}")
-        add_executable(${exename} ${sourcefile})
-
-        target_include_directories(${exename} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
-        target_compile_definitions(${exename} PRIVATE JEMALLOC_STRESS_TEST)
-
-        # We can't use {static, static} here because of name conflicts
-        target_link_libraries(${exename} ${C_TESTLIB_STRESS} ${PROJECT_NAME}-shared)
-        target_link_libraries(${exename} ${PROJECT_NAME}-jet-static)
-        target_link_libraries(${exename} pthread)
-    endforeach(sourcefile ${TESTS_UNIT})
-
     enable_testing()
     add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
-    ###########################################################################
-    # Build Unit tests
-    # This links to exported C_JETLIB static version of the library
-
-    set(UnitTests
-        test/unit/SFMT.c
-        test/unit/a0.c
-        test/unit/arena_reset.c
-        test/unit/arena_reset_prof.c
-        test/unit/atomic.c
-        test/unit/base.c
-        test/unit/bitmap.c
-        test/unit/ckh.c
-        test/unit/decay.c
-        test/unit/extent_quantize.c
-        test/unit/fork.c
-        test/unit/hash.c
-        test/unit/junk.c
-        test/unit/junk_alloc.c
-        test/unit/junk_free.c
-        test/unit/mallctl.c
-        test/unit/math.c
-        test/unit/mq.c
-        test/unit/mtx.c
-        test/unit/nstime.c
-        test/unit/pack.c
-        test/unit/pages.c
-        test/unit/ph.c
-        test/unit/prng.c
-        test/unit/prof_accum.c
-        test/unit/prof_active.c
-        test/unit/prof_gdump.c
-        test/unit/prof_idump.c
-        test/unit/prof_reset.c
-        test/unit/prof_thread_name.c
-        test/unit/ql.c
-        test/unit/qr.c
-        test/unit/rb.c
-        test/unit/rtree.c
-        test/unit/size_classes.c
-        test/unit/slab.c
-        test/unit/smoothstep.c
-        test/unit/stats.c
-        test/unit/ticker.c
-        test/unit/tsd.c
-        test/unit/util.c
-        test/unit/witness.c
-        test/unit/zero.c
-        )
-
-    set(C_UNIT_TEST_C_FLAGS ${COMMON_TESTLIB_CC_FLAGS})
-    if(MSVC)
-        # Turn off warnings
-        # test\unit\tsd.c: 4312: bitmap signed/unsigned
-        set(C_UNIT_TEST_C_FLAGS "${C_UNIT_TEST_C_FLAGS};/wd4312")
-    endif()
-
-    foreach(sourcefile ${UnitTests})
-        get_filename_component(exename ${sourcefile} NAME_WE)
-        set(exename "${exename}${install_suffix}")
-        add_executable(${exename} ${sourcefile}) 
-        target_include_directories(${exename} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
-
-        target_compile_options(${exename} PRIVATE "${C_UNIT_TEST_C_FLAGS}")
-
-        set_target_properties(${exename} PROPERTIES COMPILE_DEFINITIONS "${C_UNITETEST_DEFS}")
-        target_link_libraries(${exename} ${PROJECT_NAME}UnitTest) # must come before -jet-static
-        target_link_libraries(${exename} ${PROJECT_NAME}-jet-static)
-        target_link_libraries(${exename} pthread)
-
-        add_test(NAME ${exename} COMMAND ${exename})
-        add_dependencies(check ${exename})
-    endforeach(sourcefile ${TESTS_UNIT})
-
-    target_link_libraries(math m)
-
-    set(TESTS_INTEGRATION
-        test/integration/MALLOCX_ARENA.c
-        test/integration/aligned_alloc.c
-        test/integration/allocated.c
-        # test/integration/extent.c # not a valid test
-        test/integration/mallocx.c
-        test/integration/overflow.c
-        test/integration/posix_memalign.c
-        test/integration/rallocx.c
-        test/integration/sdallocx.c
-        test/integration/thread_arena.c
-        test/integration/thread_tcache_enabled.c
-        test/integration/xallocx.c
-        )
-
-    ##########################################################################
-    # Build integration tests
-    # This links to SO library and UTIL_INTEGRATION
-    foreach(sourcefile ${TESTS_INTEGRATION})
-        get_filename_component(exename ${sourcefile} NAME_WE)
-        set(exename "${exename}${install_suffix}")
-        add_executable(${exename} ${sourcefile})
-
-        target_include_directories(${exename} PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
-        target_compile_definitions(${exename} PRIVATE JEMALLOC_INTEGRATION_TEST)
-
-        target_link_libraries(${exename} ${C_TESTLIB_INTEGRATION} ${PROJECT_NAME}-static)
-        target_link_libraries(${exename} pthread)
-
-        add_test(NAME ${exename} COMMAND ${exename})
-        add_dependencies(check ${exename})
-    endforeach(sourcefile ${TESTS_UNIT})
+    add_subdirectory(test)
 endif()
+
+add_subdirectory(src)
