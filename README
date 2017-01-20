@@ -16,7 +16,7 @@ REMAINING DECISIONS TO MAKE:
 
 - Keep CMake extra cruft at the top level or put in a {priv, extras, cmake-extras, etc} directory?
 - break out non-common settings into to per-platform detection helpers (BuildWin32.cmake, BuildUnix.cmake, etc) so there's less If(WIN32)else() throughout?
-- Just use one top-level CMakeLists.txt or break it out into per-directory build files ({src, test/src, test/unit, test/stress, test/integration})?
+- Just use one top-level CMakeLists.txt or break it out into per-directory build files ({src, test/src, test/unit, test/stress, test/integration})? [DONE!]
 - Better integrate with CTest? (currently provides 'make test' and 'make check' in Debug builds)
 - Better package with CPack? (no integration currently, it can build OS packages and tarballs automatically)
 
