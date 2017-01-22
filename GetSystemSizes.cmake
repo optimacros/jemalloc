@@ -9,6 +9,7 @@ function (GetSystemSizes OUTPUT_VAR_NAME_PAGE_SIZE OUTPUT_VAR_NAME_CACHE_SIZE)
     set(COMPILE_OUTPUT_FILE "${WORK_FOLDER}/getsizes.log")
 
     file(WRITE ${SRC} "
+    #include <stdlib.h>
 #ifdef _WIN32
     #include <windows.h>
 #else
@@ -80,7 +81,8 @@ int main() {
     printf(\"%ld\", cache_line_size);
 
     return 0;
-}")
+}
+")
 
     try_run(RUN_RESULT COMPILE_RESULT
         "${WORK_FOLDER}"
