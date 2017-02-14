@@ -18,6 +18,8 @@ include(CTest)
 
 include(${PROJECT_SOURCE_DIR}/Utilities.cmake)
 include(${PROJECT_SOURCE_DIR}/GetSystemSizes.cmake)
+include(${PROJECT_SOURCE_DIR}/GetSystemAddrBits.cmake)
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 if(POLICY CMP0042)
@@ -373,6 +375,16 @@ set(LG_QUANTA "3 4")
 
 if(with-lg-page)
     set(LG_PAGE ${with-lg-page})
+endif()
+
+if(NOT LG_VADDR)
+    if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64") # maybe "arm64"?
+        set(LG_VADDR 48)
+    elseif(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64")
+        GetSystemAddrBits(LG_VADDR)
+    else()
+        message(FATAL_ERROR "Undecided number of VADDR bits")
+    endif()
 endif()
 
 if((NOT LG_PAGE) OR (NOT CACHELINE) OR ("${LG_PAGE}" STREQUAL "detect"))
