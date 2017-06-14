@@ -36,7 +36,6 @@ endif()
 # These objects only have code in debug builds (due to macros)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     list(APPEND JEMALLOC_CMAKE_SOURCES
-        atomic.c
         hash.c
         prng.c
         spin.c
