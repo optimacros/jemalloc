@@ -548,7 +548,7 @@ int main() {
     uint64_t r = atomic_fetch_add(a, x) + x;
     return (r == 0);
 }
-" JEMALLOC_C11ATOMICS)
+" JEMALLOC_C11_ATOMICS)
 
 set(CMAKE_REQUIRED_FLAGS)
 
