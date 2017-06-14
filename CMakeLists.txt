@@ -634,9 +634,8 @@ PrivateUnnamespace("${PRIVATE_SYM_FILE}" "${PRIVATE_UNNAMESPACE_FILE}")
 # Configure internal headers
 
 # Main internal header does not require #define expansion otherwise it affects real #undefs
-ConfigureFile("${PROJECT_SOURCE_DIR}/include/jemalloc/internal/jemalloc_internal.h.in"
-    "${PROJECT_SOURCE_DIR}/include/jemalloc/internal/jemalloc_internal.h" True)
-
+ConfigureFile("${PROJECT_SOURCE_DIR}/include/jemalloc/internal/jemalloc_preamble.h.in"
+    "${PROJECT_SOURCE_DIR}/include/jemalloc/internal/jemalloc_preamble.h" True)
 
 foreach(internal_in jemalloc_internal_defs.h)
     ConfigureFile("${PROJECT_SOURCE_DIR}/include/jemalloc/internal/${internal_in}.in"
