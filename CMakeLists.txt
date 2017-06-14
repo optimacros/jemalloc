@@ -569,27 +569,28 @@ endif()
 # Generate configured public headers for concatenation
 # Public Headers in for configuring
 set(PUBLIC_SYM
+    aligned_alloc
+    calloc
+    dallocx
+    free
+    mallctl
+    mallctlbymib
+    mallctlnametomib
+    malloc
     malloc_conf
     malloc_message
-    malloc
-    calloc
-    posix_memalign
-    aligned_alloc
-    realloc
-    free
-    mallocx
-    rallocx
-    xallocx
-    sallocx
-    dallocx
-    sdallocx
-    nallocx
-    mallctl
-    mallctlnametomib
-    mallctlbymib
     malloc_stats_print
     malloc_usable_size
-    )
+    mallocx
+    nallocx
+    posix_memalign
+    rallocx
+    realloc
+    sallocx
+    sdallocx
+    xallocx
+    valloc
+)
 
 set(PUBLIC_SYM_FILE "${PROJECT_SOURCE_DIR}/include/jemalloc/internal/public_symbols.txt")
 GeneratePublicSymbolsList("${PUBLIC_SYM}" "${MANGLING_MAP}" ${je_} "${PUBLIC_SYM_FILE}")
