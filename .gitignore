@@ -24,7 +24,7 @@
 /include/jemalloc/internal/private_namespace.gen.h
 /include/jemalloc/internal/private_namespace.h
 /include/jemalloc/internal/private_namespace_jet.gen.h
-/include/jemalloc/internal/private_namespace_jet.h
+#/include/jemalloc/internal/private_namespace_jet.h
 /include/jemalloc/internal/private_symbols.awk
 /include/jemalloc/internal/private_symbols_jet.awk
 /include/jemalloc/internal/public_namespace.h
