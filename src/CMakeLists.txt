@@ -4,6 +4,7 @@
 # library so we don't build the same sources twice for shared and static.
 set(JEMALLOC_CMAKE_SOURCES
     arena.c
+    background_thread.c
     base.c
     bitmap.c
     ckh.c
@@ -11,17 +12,20 @@ set(JEMALLOC_CMAKE_SOURCES
     extent.c
     extent_dss.c
     extent_mmap.c
+    hooks.c
     jemalloc.c
     large.c
+    malloc_io.c
     mutex.c
+    mutex_pool.c
     nstime.c
     pages.c
     prof.c
     rtree.c
     stats.c
+    sz.c
     tcache.c
     tsd.c
-    util.c
     witness.c
     )
 
