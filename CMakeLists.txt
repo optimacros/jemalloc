@@ -115,7 +115,7 @@ if(HAVE_MALLOC_H)
     set(JEMALLOC_USABLE_SIZE_CONST const)
 else()
     set(JEMALLOC_USABLE_SIZE_CONST const)
-endif()    
+endif()
 
 check_include_files(inttypes.h HAVE_INTTYPES_H)
 check_include_files(sys/time.h HAVE_SYSTIME_H)
@@ -598,7 +598,7 @@ GeneratePublicSymbolsList("${PUBLIC_SYM}" "${MANGLING_MAP}" ${je_} "${PUBLIC_SYM
 foreach(public_in jemalloc_macros.h jemalloc_defs.h jemalloc_protos.h jemalloc_typedefs.h)
     ConfigureFile("${PROJECT_SOURCE_DIR}/include/jemalloc/${public_in}.in"
         "${PROJECT_SOURCE_DIR}/include/jemalloc/${public_in}" True)
-endforeach(public_in)  
+endforeach(public_in)
 
 # Generate main public header
 set(JEMALLOC_HDR "${PROJECT_SOURCE_DIR}/include/jemalloc/jemalloc${install_suffix}.h")
@@ -637,7 +637,7 @@ ConfigureFile("${PROJECT_SOURCE_DIR}/include/jemalloc/internal/jemalloc_preamble
 foreach(internal_in jemalloc_internal_defs.h)
     ConfigureFile("${PROJECT_SOURCE_DIR}/include/jemalloc/internal/${internal_in}.in"
         "${PROJECT_SOURCE_DIR}/include/jemalloc/internal/${internal_in}" True)
-endforeach(internal_in)  
+endforeach(internal_in)
 
 # Test related headers
 ConfigureFile("${PROJECT_SOURCE_DIR}/test/include/test/jemalloc_test_defs.h.in"
