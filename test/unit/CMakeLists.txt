@@ -43,7 +43,6 @@ set(UnitTests
     stats.c
     ticker.c
     tsd.c
-    util.c
     witness.c
     zero.c
     )
