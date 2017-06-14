@@ -628,9 +628,6 @@ set(PRIVATE_SYM_FILE "${PROJECT_SOURCE_DIR}/include/jemalloc/internal/private_sy
 set(PRIVATE_NAMESPACE_FILE "${PROJECT_SOURCE_DIR}/include/jemalloc/internal/private_namespace.h")
 PrivateNamespace("${PRIVATE_SYM_FILE}" "${PRIVATE_NAMESPACE_FILE}")
 
-set(PRIVATE_UNNAMESPACE_FILE "${PROJECT_SOURCE_DIR}/include/jemalloc/internal/private_unnamespace.h")
-PrivateUnnamespace("${PRIVATE_SYM_FILE}" "${PRIVATE_UNNAMESPACE_FILE}")
-
 # Configure internal headers
 
 # Main internal header does not require #define expansion otherwise it affects real #undefs
