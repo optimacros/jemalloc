@@ -718,7 +718,7 @@ endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     enable_testing()
-    add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+    add_custom_target(check-jemalloc COMMAND ${CMAKE_CTEST_COMMAND})
 
     add_subdirectory(test)
 endif()
