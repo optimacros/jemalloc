@@ -7,6 +7,10 @@ project(jemalloc C)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Needed because of how jemalloc builds of configured and generated files.
+# With better header management, we could place these in the build directory.
+set(CMAKE_DISABLE_SOURCE_CHANGES OFF)
+
 include(CheckFunctionExists)
 include(CheckSymbolExists)
 include(CheckCCompilerFlag)
