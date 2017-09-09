@@ -73,6 +73,10 @@ endif()
 
 set(PREFIX $install_prefix)
 
+if(enable-prefixed-jemalloc-library)
+    set(with-jemalloc-prefix ON)
+endif()
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wsign-compare")
@@ -259,7 +263,8 @@ set(JEMALLOC_PREFIX "\"je_\"")
 set(je_ je_) # in-header prefix for je_blahblah
 
 if(with-jemalloc-prefix)
-    set(JEMALLOC_PREFIX "\"${with-jemalloc-prefix}\"")
+    set(JEMALLOC_PREFIX ${JEMALLOC_PREFIX})
+    set(JEMALLOC_PRIVATE_NAMESPACE ${JEMALLOC_PREFIX})
 endif()
 
 # Uppercase copy of the JEMALLOC_PREFIX
