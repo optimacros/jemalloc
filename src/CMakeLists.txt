@@ -12,19 +12,23 @@ set(JEMALLOC_CMAKE_SOURCES
     extent.c
     extent_dss.c
     extent_mmap.c
+    hash.c
     hooks.c
     jemalloc.c
     large.c
+    log.c
     malloc_io.c
     mutex.c
     mutex_pool.c
     nstime.c
     pages.c
+    prng.c
     prof.c
     rtree.c
     stats.c
     sz.c
     tcache.c
+    ticker.c
     tsd.c
     witness.c
     )
@@ -38,7 +42,6 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     list(APPEND JEMALLOC_CMAKE_SOURCES
         hash.c
         prng.c
-        spin.c
         ticker.c)
     # No symbols even in debug mode
     # mb.c
