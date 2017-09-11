@@ -309,7 +309,7 @@ if(disable-cc-silence)
 endif()
 
 # Build debugging code (implies --enable-ivsalloc)
-if(enable-debug OR (CMAKE_BUILD_TYPE MATCHES Debug))
+if(enable-debug)
     set(JEMALLOC_DEBUG 1)
     set(JEMALLOC_IVSALLOC 1)
 endif()
