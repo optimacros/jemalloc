@@ -6,9 +6,11 @@ set(JEMALLOC_CMAKE_SOURCES
     arena.c
     background_thread.c
     base.c
+    bin.c
     bitmap.c
     ckh.c
     ctl.c
+    div.c
     extent.c
     extent_dss.c
     extent_mmap.c
