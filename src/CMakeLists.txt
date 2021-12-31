@@ -42,13 +42,6 @@ endif()
 
 # These objects only have code in debug builds (due to macros)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-    list(APPEND JEMALLOC_CMAKE_SOURCES
-        hash.c
-        prng.c
-        ticker.c)
-    # No symbols even in debug mode
-    # mb.c
-
     # Also, test binaries link against jemalloc-static,
     # so override any user preference and create static library when testing.
     set(JEMALLOC_BUILD_STATIC ON)
