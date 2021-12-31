@@ -370,3 +370,21 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 endif()
 
 add_subdirectory(src)
+
+
+# setup install
+if(MSVC)
+    set(DEF_INSTALL_CMAKE_DIR CMake)
+else()
+    include(GNUInstallDirs) # define CMAKE_INSTALL_*
+    set(DEF_INSTALL_CMAKE_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/jemalloc)
+endif()
+
+install(TARGETS jemalloc-shared jemalloc-static EXPORT jemallocConfig
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+        )
+install(FILES ${CMAKE_BINARY_DIR}/include/jemalloc/jemalloc.h DESTINATION include/jemalloc)
+install(EXPORT jemallocConfig DESTINATION ${DEF_INSTALL_CMAKE_DIR})
